@@ -1,19 +1,14 @@
 package com.starter.wulei.webcrawlertool.activities;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.starter.wulei.webcrawlertool.R;
-import com.starter.wulei.webcrawlertool.fragments.WebViewFragment;
 import com.starter.wulei.webcrawlertool.models.CookBook;
 import com.starter.wulei.webcrawlertool.utilities.CookingBookResolver;
-import com.starter.wulei.webcrawlertool.utilities.CookingsDBHelper;
 
 public class MainActivity extends AppCompatActivity {
 

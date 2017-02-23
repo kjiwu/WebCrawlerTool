@@ -19,12 +19,12 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by wulei on 2017/2/23.
@@ -48,6 +48,11 @@ public class CookingBookResolver {
         }
     };
 
+    private CookBookDBHelper mBookDBHelper;
+    private CookingMaterialDBHelper mMaterialDBHelper;
+    private CookStepsDBHelper mStepsDBHelper;
+    private MaterialInfoDBHelper mInfoDBHelper;
+
     public void setOnCookBookResolver(OnCookingBookResolver resolver) {
         mResolver = resolver;
     }
@@ -61,22 +66,21 @@ public class CookingBookResolver {
             @Override
             public void run() {
                 try{
-                    URL newUrl=new URL(url);
-                    URLConnection connect=newUrl.openConnection();
-                    connect.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
-                    DataInputStream dis=new DataInputStream(connect.getInputStream());
-                    BufferedReader in = new BufferedReader(new InputStreamReader(dis,"UTF-8"));//目标页面编码为UTF-8
-                    String html="";
-                    String readLine=null;
-                    while((readLine=in.readLine())!=null)
-                    {
-                        html=html+readLine;
+                    URL newUrl = new URL(url);
+                    URLConnection connect = newUrl.openConnection();
+                    DataInputStream dis = new DataInputStream(connect.getInputStream());
+                    BufferedReader in = new BufferedReader(new InputStreamReader(dis,"UTF-8"));
+                    String html = "";
+                    String readLine = null;
+                    while((readLine = in.readLine()) != null) {
+                        html += readLine;
                     }
                     in.close();
                     resolve(html);
-                }catch(MalformedURLException me){
                 }
-                catch(IOException ioe){
+                catch(MalformedURLException me) {
+                }
+                catch(IOException ioe) {
                 }
             }
         }).start();
@@ -123,6 +127,20 @@ public class CookingBookResolver {
             book.setTips(list);
         }
 
+        mBookDBHelper = new CookBookDBHelper(mContext);
+        mBookDBHelper.insertCookBook(book);
+
+        mMaterialDBHelper = new CookingMaterialDBHelper(mContext);
+        mMaterialDBHelper.insertCookingMaterial(book.getId(), material);
+
+        mInfoDBHelper = new MaterialInfoDBHelper(mContext);
+        String materialId = material.getUuid().toString();
+        mInfoDBHelper.insertMaterialInfos(materialId, material.getMainMaterials());
+        mInfoDBHelper.insertMaterialInfos(materialId, material.getIngredients());
+
+        mStepsDBHelper = new CookStepsDBHelper(mContext);
+        mStepsDBHelper.insertSteps(book.getId(), book.getSteps());
+
         Bundle bundle = new Bundle();
         bundle.putSerializable("book", book);
         Message message = Message.obtain();
@@ -133,6 +151,7 @@ public class CookingBookResolver {
     //解析菜谱的烹饪难度，时间和食材
     private CookingMaterial getMaterial(Document htmlDoc) {
         CookingMaterial material = new CookingMaterial();
+        material.setUuid(UUID.randomUUID());
         Elements material_table = htmlDoc.select("table.cp-show-tab");
         if(material_table.size() > 0) {
             Element table = material_table.first();

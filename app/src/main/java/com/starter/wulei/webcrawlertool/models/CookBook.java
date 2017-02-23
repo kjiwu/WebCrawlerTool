@@ -8,7 +8,7 @@ import java.util.List;
  */
 
 public class CookBook implements Serializable{
-    int id;
+    String id;
     String title; //标题
     String pic_path; //大图路径
     String intro; //介绍
@@ -26,11 +26,11 @@ public class CookBook implements Serializable{
 
     List<String> tips; //小窍门
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

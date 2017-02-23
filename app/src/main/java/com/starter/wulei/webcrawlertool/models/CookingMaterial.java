@@ -1,16 +1,26 @@
 package com.starter.wulei.webcrawlertool.models;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by wulei on 2017/2/23.
  */
 
 public class CookingMaterial {
+    UUID uuid;
     String difficulty; //烹饪难度
     String cookingTime; //烹饪时间
     List<MaterialInfo> mainMaterials; //主要食材
     List<MaterialInfo> ingredients; //辅助食材
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
 
     public String getDifficulty() {
         return difficulty;
