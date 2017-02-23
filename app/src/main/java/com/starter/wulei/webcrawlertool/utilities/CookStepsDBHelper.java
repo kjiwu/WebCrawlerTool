@@ -23,7 +23,7 @@ public class CookStepsDBHelper extends DBHelper {
     private final static String COLUMN_STEP_IMG_PATH = "step_img_path";
     private final static String COLUMN_BOOK_ID = "book_id";
 
-    private final static String CREATE_STEPS_TABLE = "CREATE TABLE IF NOT EXITS " +
+    private final static String CREATE_STEPS_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "[TS_COOKINGSTEPS] (" +
             "[step_order] INT," +
             "[step_name] VARCHAR," +

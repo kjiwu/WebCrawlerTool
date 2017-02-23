@@ -22,7 +22,7 @@ public class MaterialInfoDBHelper extends DBHelper {
     private final static String COLUMN_MATERIAL_ID = "material_id";
 
 
-    private final static String CREATE_INFO_TABLE = "CREATE TABLE IF NOT EXITS " +
+    private final static String CREATE_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "[TS_MATERIALINFOS] (" +
             "[info_name] VARCHAR," +
             "[info_dosage] VARCHAR," +

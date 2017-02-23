@@ -21,7 +21,8 @@ public class CookingMaterialDBHelper extends DBHelper {
     private final static String COLUMN_BOOK_ID = "book_id";
 
 
-    private final static String CREATE_MATERIAL_TABLE = "CREATE TABLE IF NOT EXITS [TS_COOKINGMATERIALS]" +
+    private final static String CREATE_MATERIAL_TABLE = "CREATE TABLE IF NOT EXISTS " +
+            "[TS_COOKINGMATERIALS]" +
             "(" +
             "[material_id] VARCHAR PRIMARY KEY," +
             "[material_difficulty] VARCHAR," +

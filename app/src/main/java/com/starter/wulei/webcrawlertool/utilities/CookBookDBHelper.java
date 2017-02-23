@@ -23,7 +23,7 @@ public class CookBookDBHelper extends DBHelper {
     private final static String COLUMN_TIPS = "book_tips";
 
 
-    private final static String CREATE_COOKBOOKS_TABLE = "CREATE TABLE IF NOT EXITS " +
+    private final static String CREATE_COOKBOOKS_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "[TS_COOKBOOKS]" +
             "(" +
             "[book_id] VARCHAR PRIMARY KEY," +
