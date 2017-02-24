@@ -23,7 +23,7 @@ public class JavaScriptInterface implements IJavaScriptInterface {
     public void getWebSource(String source) {
         if(null != source) {
             mResolver.setHtml(source);
-            getSourceOver(true);
+            mResolver.getCookingList(this);
         }
     }
 
@@ -38,10 +38,6 @@ public class JavaScriptInterface implements IJavaScriptInterface {
         } else {
             return "1";
         }
-    }
-
-    public void getCookings() {
-        mResolver.getCookingList();
     }
 
     @Override

@@ -2,10 +2,12 @@ package com.starter.wulei.webcrawlertool.resolvers;
 
 import android.content.Context;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 
 import com.starter.wulei.webcrawlertool.databse.CookingsDBHelper;
 import com.starter.wulei.webcrawlertool.models.CookingItem;
 import com.starter.wulei.webcrawlertool.models.IHTMLResolver;
+import com.starter.wulei.webcrawlertool.models.IJavaScriptInterface;
 import com.starter.wulei.webcrawlertool.utilities.ImageDownloader;
 import com.starter.wulei.webcrawlertool.utilities.StringHelper;
 
@@ -15,6 +17,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by wulei on 2017/2/23.
@@ -38,10 +50,12 @@ public class HTMLResolver implements IHTMLResolver {
 
     @Override
     public String getCurrentPage() {
-        if(null == htmlDoc) { return null; }
+        if (null == htmlDoc) {
+            return null;
+        }
 
         Elements elements = htmlDoc.select("div.cp-u-my-page a.cur");
-        if(elements.size() > 0) {
+        if (elements.size() > 0) {
             return elements.get(0).ownText();
         }
         return null;
@@ -49,10 +63,12 @@ public class HTMLResolver implements IHTMLResolver {
 
     @Override
     public boolean haveNextPage() {
-        if(null == htmlDoc) { return false; }
+        if (null == htmlDoc) {
+            return false;
+        }
 
         Elements elements = htmlDoc.select("div.cp-u-my-page a");
-        if(elements.size() > 0) {
+        if (elements.size() > 0) {
             int next_index = elements.size() - 2;
             Element nextButton = elements.get(next_index);
             return nextButton.hasAttr("class") == false;
@@ -60,43 +76,66 @@ public class HTMLResolver implements IHTMLResolver {
         return false;
     }
 
-    public void getCookingList() {
-        if(null == htmlDoc) { return; }
-
-        Elements elements = htmlDoc.select("#list_t");
-        if(elements.size() > 0) {
-            Elements as = elements.get(0).getElementsByTag("a");
-            int a_count = as.size();
-            if(a_count > 0) {
-                ArrayList<CookingItem> list = new ArrayList<>();
-                Log.d("AA", "Current Page: " + getCurrentPage());
-                for (int i = 0; i < a_count; i++) {
-                    Element a = as.get(i);
-                    if(a.hasAttr("class") && a.attr("class").equals("cp-edit")) {
-                        continue;
-                    }
-
-                    if(a.hasAttr("href") && a.attr("href") == null) {
-                        continue;
-                    }
-
-                    CookingItem item = new CookingItem();
-                    item.name = a.children().get(1).children().get(0).ownText();
-                    item.cookingId = StringHelper.getCookingId(item.name);
-                    if(a.hasAttr("href")) {
-                        item.url = a.attr("href");
-                    }
-                    item.image = a.child(0).attr("src");
-                    item.image_name = StringHelper.getImageName(item.image);
-                    Log.d("AA", "name: " + item.name + " url:" + item.url + " image:" + item.image);
-                    ImageDownloader downloader = new ImageDownloader(mContext);
-                    if(null != item.url) {
-                        downloader.download(StringHelper.getCookingId(item.url), item.image);
-                        list.add(item);
-                    }
-                }
-                mDBHelper.insertCooking(list);
-            }
+    public void getCookingList(final IJavaScriptInterface jsInterface) {
+        if (null == htmlDoc) {
+            return;
         }
+
+        Observable.create(new ObservableOnSubscribe<CookingItem>() {
+            @Override
+            public void subscribe(ObservableEmitter<CookingItem> e) throws Exception {
+                Elements elements = htmlDoc.select("#list_t li a");
+                for (Element element : elements) {
+                    if (element.hasAttr("class") && element.attr("class").equals("cp-edit")) {
+                        continue;
+                    }
+
+                    if (element.hasAttr("href") && element.attr("href") == null) {
+                        continue;
+                    }
+                    e.onNext(getCooking(element));
+                }
+                e.onComplete();
+            }
+        })
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Observer<CookingItem>() {
+            Disposable mDisposable;
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                mDisposable = d;
+            }
+
+            @Override
+            public void onNext(CookingItem value) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                jsInterface.getSourceOver(true);
+            }
+        });
+    }
+
+    private CookingItem getCooking(Element element) {
+        CookingItem item = new CookingItem();
+        item.name = element.children().get(1).children().get(0).ownText();
+        item.cookingId = StringHelper.getCookingId(item.name);
+        if (element.hasAttr("href")) {
+            item.url = element.attr("href");
+        }
+        item.image = element.child(0).attr("src");
+        item.image_name = StringHelper.getImageName(item.image);
+        Log.d("AA", "name: " + item.name + " url:" + item.url + " image:" + item.image);
+        mDBHelper.insertCooking(item);
+        return item;
     }
 }

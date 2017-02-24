@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.starter.wulei.webcrawlertool.models.CookingItem;
+import com.starter.wulei.webcrawlertool.models.CookingMaterial;
 import com.starter.wulei.webcrawlertool.utilities.StringHelper;
 
 import java.util.ArrayList;
@@ -20,36 +21,58 @@ public class CookingsDBHelper extends DBHelper {
 
     private final static String COOKINGS_TABLE_NAME = "ST_COOKINGS";
 
-    private final static String COLUMN_COOKING_ID = "cooking_id";
-    private final static String COLUMN_COOKING_TYPE = "cooking_type";
-    private final static String COLUMN_COOKING_NAME = "name";
-    private final static String COLUMN_COOKING_URL = "url";
-    private final static String COLUMN_COOKING_IMG_NAME = "image_name";
-    private final static String COLUMN_COOKING_IMG = "image";
-
     public  CookingsDBHelper(Context context) {
         super(context);
     }
 
-    public void insertCooking(List<CookingItem> cookings) {
+    public void insertCooking(CookingItem cooking) {
+        if(null == cooking) {
+            return;
+        }
+
         SQLiteDatabase db = null;
         try {
-            if(null == cookings || cookings.size() == 0) {
-                return;
-            }
-
             db = getWritableDatabase();
             db.beginTransaction();
-            for (CookingItem cooking : cookings) {
-                ContentValues values = new ContentValues();
-                values.put(COLUMN_COOKING_NAME, cooking.name);
-                values.put(COLUMN_COOKING_URL, cooking.url);
-                values.put(COLUMN_COOKING_IMG, cooking.image);
-                values.put(COLUMN_COOKING_IMG_NAME, StringHelper.getImageName(cooking.image));
-                values.put(COLUMN_COOKING_ID, StringHelper.getCookingId(cooking.url));
-                values.put(COLUMN_COOKING_TYPE, cooking.type);
-                db.insert(COOKINGS_TABLE_NAME, "name,url,image", values);
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_COOKING_NAME, cooking.name);
+            values.put(COLUMN_COOKING_URL, cooking.url);
+            values.put(COLUMN_COOKING_IMG, cooking.image);
+            values.put(COLUMN_COOKING_IMG_NAME, StringHelper.getImageName(cooking.image));
+            values.put(COLUMN_COOKING_ID, StringHelper.getCookingId(cooking.url));
+            values.put(COLUMN_COOKING_TYPE, cooking.type);
+            values.put(COLUMN_COOKING_DIFF, cooking.difficulity);
+            values.put(COLUMN_COOKING_MATERIALS, cooking.materials);
+            db.insert(COOKINGS_TABLE_NAME, "name,url,image", values);
+            db.setTransactionSuccessful();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            if(null != db) {
+                db.endTransaction();
+                db.close();
             }
+        }
+    }
+
+    public void updateCooking(String cooking_id, CookingMaterial material) {
+        if(null == material || null == cooking_id) {
+            return;
+        }
+
+        SQLiteDatabase db = null;
+        try {
+            db = getWritableDatabase();
+            db.beginTransaction();
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_COOKING_DIFF, material.difficulty);
+            values.put(COLUMN_COOKING_MATERIALS, material.materials);
+            db.update(COOKINGS_TABLE_NAME,
+                    values,
+                    COLUMN_COOKING_ID,
+                    new String[] { cooking_id });
             db.setTransactionSuccessful();
         }
         catch (Exception e) {

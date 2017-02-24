@@ -75,12 +75,13 @@ public class WebViewFragment extends Fragment {
         mJSInterface = new JavaScriptInterface(view.getContext()) {
             @Override
             public void getSourceOver(boolean isOver) {
+                Log.d("X-MAN", "JavaScriptInterface getSourceOver");
+
                 if(isOver) {
-                    this.getCookings();
                     if(getNextPage() != null) {
                         mGetCookingListHandler.post(mGetNextPageRunnable);
                     } else {
-                        Log.d("AA", "load cooking list over");
+                        Log.d("X-MAN", "load cooking list over");
                         Toast.makeText(mContext, "load cooking list over", Toast.LENGTH_SHORT);
                         mButtonLoadCookings.setEnabled(true);
                     }

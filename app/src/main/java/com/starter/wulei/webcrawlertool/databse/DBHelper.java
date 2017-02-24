@@ -10,58 +10,28 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
     protected final static String DB_NAME = "cookings.db";
-    private final static int DB_VERSION = 2;
+    private final static int DB_VERSION = 1;
+
+    public final static String COLUMN_COOKING_ID = "cooking_id";
+    public final static String COLUMN_COOKING_TYPE = "cooking_type";
+    public final static String COLUMN_COOKING_NAME = "cooking_name";
+    public final static String COLUMN_COOKING_URL = "cooking_url";
+    public final static String COLUMN_COOKING_IMG_NAME = "cooking_img_name";
+    public final static String COLUMN_COOKING_IMG = "cooking_image";
+    public final static String COLUMN_COOKING_DIFF = "cooking_difficulty";
+    public final static String COLUMN_COOKING_MATERIALS = "cooking_materials";
+
 
     //菜谱列表表
-    private final String CREATE_COOKINGS_TABLE = "CREATE TABLE IF NOT EXISTS [ST_COOKINGS](\n" +
-            "    [id] INTEGER PRIMARY KEY AUTOINCREMENT, \n" +
-            "    [cooking_id] VARCHAR(100) NOT NULL, \n" +
+    private final String CREATE_COOKINGS_TABLE = "CREATE TABLE [ST_COOKINGS](\n" +
+            "    [cooking_id] VARCHAR(100) PRIMARY KEY NOT NULL, \n" +
             "    [cooking_type] INT, \n" +
-            "    [name] VARCHAR(100) NOT NULL, \n" +
-            "    [url] VARCHAR(100), \n" +
-            "    [image_name] VARCHAR(100), \n" +
-            "    [image] VARCHAR(200))";
-
-    //菜谱详情表
-    private final static String CREATE_COOKBOOKS_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "[ST_COOKBOOKS]" +
-            "(" +
-            "[book_id] VARCHAR PRIMARY KEY," +
-            "[book_title] VARCHAR," +
-            "[book_img_name] VARCHAR," +
-            "[book_img_path] VARCHAR," +
-            "[book_intro] VARCHAR," +
-            "[book_tips] VARCHAR," +
-            "[book_type] INT" +
-            ")";
-
-    //菜谱材料表
-    private final static String CREATE_MATERIAL_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "[ST_COOKINGMATERIALS]" +
-            "(" +
-            "[material_id] VARCHAR PRIMARY KEY," +
-            "[material_difficulty] VARCHAR," +
-            "[material_time] VARCHAR," +
-            "[book_id] VARCHAR" +
-            ")";
-
-    //菜谱步骤表
-    private final static String CREATE_STEPS_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "[ST_COOKINGSTEPS] (" +
-            "[step_order] INT," +
-            "[step_name] VARCHAR," +
-            "[step_img_name] VARCHAR," +
-            "[step_img_path] VARCHAR," +
-            "[book_id] VARCHAR" +
-            ")";
-
-    //食材信息表
-    private final static String CREATE_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "[ST_MATERIALINFOS] (" +
-            "[info_name] VARCHAR," +
-            "[info_dosage] VARCHAR," +
-            "[material_id] VARCHAR" +
-            ")";
+            "    [cooking_name] VARCHAR(100) NOT NULL, \n" +
+            "    [cooking_url] VARCHAR(100), \n" +
+            "    [cooking_img_name] VARCHAR(100), \n" +
+            "    [cooking_image] VARCHAR(200), \n" +
+            "    [cooking_difficulty] NVARCHAR(50), \n" +
+            "    [cooking_materials] VARCHAR(200));";
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -72,10 +42,6 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             db.beginTransaction();
             db.execSQL(CREATE_COOKINGS_TABLE);
-            db.execSQL(CREATE_COOKBOOKS_TABLE);
-            db.execSQL(CREATE_MATERIAL_TABLE);
-            db.execSQL(CREATE_STEPS_TABLE);
-            db.execSQL(CREATE_INFO_TABLE);
             db.setTransactionSuccessful();
         }
         finally {
