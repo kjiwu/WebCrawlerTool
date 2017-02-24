@@ -12,6 +12,16 @@ public class CookBook implements Serializable{
     String title; //标题
     String pic_path; //大图路径
     String intro; //介绍
+    int type; //菜谱分类
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
     CookingMaterial material; //烹饪材料
     List<CookingStep> steps; //烹饪步骤
     List<String> completedPics; //成品图

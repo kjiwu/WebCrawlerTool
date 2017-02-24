@@ -6,9 +6,6 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.starter.wulei.webcrawlertool.databse.CookBookDBHelper;
-import com.starter.wulei.webcrawlertool.databse.CookStepsDBHelper;
-import com.starter.wulei.webcrawlertool.databse.CookingMaterialDBHelper;
-import com.starter.wulei.webcrawlertool.databse.MaterialInfoDBHelper;
 import com.starter.wulei.webcrawlertool.models.CookBook;
 import com.starter.wulei.webcrawlertool.models.CookingMaterial;
 import com.starter.wulei.webcrawlertool.models.CookingStep;
@@ -55,9 +52,6 @@ public class CookingBookResolver {
     };
 
     private CookBookDBHelper mBookDBHelper;
-    private CookingMaterialDBHelper mMaterialDBHelper;
-    private CookStepsDBHelper mStepsDBHelper;
-    private MaterialInfoDBHelper mInfoDBHelper;
 
     public void setOnCookBookResolver(OnCookingBookResolver resolver) {
         mResolver = resolver;
@@ -140,17 +134,6 @@ public class CookingBookResolver {
 
         mBookDBHelper = new CookBookDBHelper(mContext);
         mBookDBHelper.insertCookBook(book);
-
-        mMaterialDBHelper = new CookingMaterialDBHelper(mContext);
-        mMaterialDBHelper.insertCookingMaterial(book.getId(), material);
-
-        mInfoDBHelper = new MaterialInfoDBHelper(mContext);
-        String materialId = material.getUuid().toString();
-        mInfoDBHelper.insertMaterialInfos(materialId, material.getMainMaterials());
-        mInfoDBHelper.insertMaterialInfos(materialId, material.getIngredients());
-
-        mStepsDBHelper = new CookStepsDBHelper(mContext);
-        mStepsDBHelper.insertSteps(book.getId(), book.getSteps());
 
         Bundle bundle = new Bundle();
         bundle.putSerializable("book", book);
