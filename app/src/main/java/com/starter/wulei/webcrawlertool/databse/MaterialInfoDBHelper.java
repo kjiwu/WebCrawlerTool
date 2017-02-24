@@ -1,4 +1,4 @@
-package com.starter.wulei.webcrawlertool.utilities;
+package com.starter.wulei.webcrawlertool.databse;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,38 +14,23 @@ import java.util.List;
 
 public class MaterialInfoDBHelper extends DBHelper {
 
-    private final static int VERSION = 1;
-
-    private final static String TABLE_NAME = "TS_MATERIALINFOS";
+    private final static String TABLE_NAME = "ST_MATERIALINFOS";
     private final static String COLUMN_INFO_NAME = "info_name";
     private final static String COLUMN_INFO_DOSAGE = "info_dosage";
     private final static String COLUMN_MATERIAL_ID = "material_id";
 
 
-    private final static String CREATE_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "[TS_MATERIALINFOS] (" +
-            "[info_name] VARCHAR," +
-            "[info_dosage] VARCHAR," +
-            "[material_id] VARCHAR" +
-            ")";
-
     public MaterialInfoDBHelper(Context context) {
-        super(context, VERSION);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_INFO_TABLE);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onUpgrade(db, oldVersion, newVersion);
+        super(context);
     }
 
     public void insertMaterialInfos(String materialId, List<MaterialInfo> infos) {
         SQLiteDatabase db = null;
         try {
+            if(null == infos || infos.size() == 0) {
+                return;
+            }
+
             db = getWritableDatabase();
             db.beginTransaction();
             for (MaterialInfo info : infos) {

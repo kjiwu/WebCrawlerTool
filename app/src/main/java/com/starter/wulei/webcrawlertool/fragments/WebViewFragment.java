@@ -1,5 +1,6 @@
 package com.starter.wulei.webcrawlertool.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -10,9 +11,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.starter.wulei.webcrawlertool.R;
+import com.starter.wulei.webcrawlertool.activities.MainActivity;
+import com.starter.wulei.webcrawlertool.databse.CookingsDBHelper;
+import com.starter.wulei.webcrawlertool.models.CookBook;
 import com.starter.wulei.webcrawlertool.models.JavaScriptInterface;
+import com.starter.wulei.webcrawlertool.resolvers.CookingBookResolver;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wulei on 2016/9/10.
@@ -21,6 +32,12 @@ public class WebViewFragment extends Fragment {
 
     private final static String url_str = "http://www.chinacaipu.com/caipu/fancier";
     private WebView mWebView;
+    private Context mContext;
+    private Button mButtonLoadCookings;
+
+    private final static int LOAD_PAGESOUCE_DELAY_TIME = 10000;
+    private final static int LOAD_NEXTPAGE_DELAY_TIME = 3000;
+
 
     private JavaScriptInterface mJSInterface;
 
@@ -36,7 +53,7 @@ public class WebViewFragment extends Fragment {
         @Override
         public void run() {
             mWebView.loadUrl("javascript:page(" + mJSInterface.getNextPage() + ")");
-            mGetCookingListHandler.postDelayed(mGetCookingListRunnable, 1000);
+            mGetCookingListHandler.postDelayed(mGetCookingListRunnable, LOAD_NEXTPAGE_DELAY_TIME);
         }
     };
 
@@ -45,15 +62,16 @@ public class WebViewFragment extends Fragment {
         @Override
         public void onPageFinished(WebView view, String url) {
             Log.d("WebView", "onPageFinished");
-            mGetCookingListHandler.postDelayed(mGetCookingListRunnable, 1000);
+            mGetCookingListHandler.postDelayed(mGetCookingListRunnable, LOAD_PAGESOUCE_DELAY_TIME);
             super.onPageFinished(view, url);
         }
     };
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        RelativeLayout view = new RelativeLayout(inflater.getContext());
+    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mContext = inflater.getContext();
+        RelativeLayout view = new RelativeLayout(mContext);
         mJSInterface = new JavaScriptInterface(view.getContext()) {
             @Override
             public void getSourceOver(boolean isOver) {
@@ -61,6 +79,10 @@ public class WebViewFragment extends Fragment {
                     this.getCookings();
                     if(getNextPage() != null) {
                         mGetCookingListHandler.post(mGetNextPageRunnable);
+                    } else {
+                        Log.d("AA", "load cooking list over");
+                        Toast.makeText(mContext, "load cooking list over", Toast.LENGTH_SHORT);
+                        mButtonLoadCookings.setEnabled(true);
                     }
                 }
             }
@@ -73,8 +95,16 @@ public class WebViewFragment extends Fragment {
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.addJavascriptInterface(mJSInterface, "androidObj");
         mWebView.setWebViewClient(mWebClinet);
-        mWebView.loadUrl(url_str);
         view.addView(mWebView);
+
+        mButtonLoadCookings = (Button) getActivity().findViewById(R.id.button_load_cookings);
+        mButtonLoadCookings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWebView.loadUrl(url_str);
+                mButtonLoadCookings.setEnabled(false);
+            }
+        });
 
         return view;
     }

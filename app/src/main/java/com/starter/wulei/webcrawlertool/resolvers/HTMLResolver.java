@@ -1,10 +1,13 @@
-package com.starter.wulei.webcrawlertool.utilities;
+package com.starter.wulei.webcrawlertool.resolvers;
 
 import android.content.Context;
 import android.util.Log;
 
+import com.starter.wulei.webcrawlertool.databse.CookingsDBHelper;
 import com.starter.wulei.webcrawlertool.models.CookingItem;
 import com.starter.wulei.webcrawlertool.models.IHTMLResolver;
+import com.starter.wulei.webcrawlertool.utilities.ImageDownloader;
+import com.starter.wulei.webcrawlertool.utilities.StringHelper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,8 +24,10 @@ public class HTMLResolver implements IHTMLResolver {
     private String mHtml;
     private Document htmlDoc;
     private CookingsDBHelper mDBHelper;
+    private Context mContext;
 
     public HTMLResolver(Context context) {
+        mContext = context;
         mDBHelper = new CookingsDBHelper(context);
     }
 
@@ -64,6 +69,7 @@ public class HTMLResolver implements IHTMLResolver {
             int a_count = as.size();
             if(a_count > 0) {
                 ArrayList<CookingItem> list = new ArrayList<>();
+                Log.d("AA", "Current Page: " + getCurrentPage());
                 for (int i = 0; i < a_count; i++) {
                     Element a = as.get(i);
                     if(a.hasAttr("class") && a.attr("class").equals("cp-edit")) {
@@ -82,8 +88,12 @@ public class HTMLResolver implements IHTMLResolver {
                     }
                     item.image = a.child(0).attr("src");
                     item.image_name = StringHelper.getImageName(item.image);
-                    Log.d("AA", item.name + " " + item.url + " " + item.image);
-                    list.add(item);
+                    Log.d("AA", "name: " + item.name + " url:" + item.url + " image:" + item.image);
+                    ImageDownloader downloader = new ImageDownloader(mContext);
+                    if(null != item.url) {
+                        downloader.download(StringHelper.getCookingId(item.url), item.image);
+                        list.add(item);
+                    }
                 }
                 mDBHelper.insertCooking(list);
             }

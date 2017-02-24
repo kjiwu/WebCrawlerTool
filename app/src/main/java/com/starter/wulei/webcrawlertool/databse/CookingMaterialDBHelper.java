@@ -1,4 +1,4 @@
-package com.starter.wulei.webcrawlertool.utilities;
+package com.starter.wulei.webcrawlertool.databse;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,8 +12,7 @@ import com.starter.wulei.webcrawlertool.models.CookingMaterial;
 
 public class CookingMaterialDBHelper extends DBHelper {
 
-    private final static int VERSION = 1;
-    private final static String TABLE_NAME = "TS_COOKINGMATERIALS";
+    private final static String TABLE_NAME = "ST_COOKINGMATERIALS";
 
     private final static String COLUMN_ID = "material_id";
     private final static String COLUMN_DIFFICULTY = "material_difficulty";
@@ -21,32 +20,17 @@ public class CookingMaterialDBHelper extends DBHelper {
     private final static String COLUMN_BOOK_ID = "book_id";
 
 
-    private final static String CREATE_MATERIAL_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "[TS_COOKINGMATERIALS]" +
-            "(" +
-            "[material_id] VARCHAR PRIMARY KEY," +
-            "[material_difficulty] VARCHAR," +
-            "[material_time] VARCHAR," +
-            "[book_id] VARCHAR" +
-            ")";
-
     public CookingMaterialDBHelper(Context context) {
-        super(context, VERSION);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_MATERIAL_TABLE);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onUpgrade(db, oldVersion, newVersion);
+        super(context);
     }
 
     public void insertCookingMaterial(String bookId, CookingMaterial material) {
         SQLiteDatabase db = null;
         try {
+            if(null == material || null == bookId) {
+                return;
+            }
+
             db = getWritableDatabase();
             db.beginTransaction();
             ContentValues values = new ContentValues();

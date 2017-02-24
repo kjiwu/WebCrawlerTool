@@ -2,7 +2,7 @@ package com.starter.wulei.webcrawlertool.models;
 
 import android.content.Context;
 import android.webkit.JavascriptInterface;
-import com.starter.wulei.webcrawlertool.utilities.HTMLResolver;
+import com.starter.wulei.webcrawlertool.resolvers.HTMLResolver;
 
 
 /**

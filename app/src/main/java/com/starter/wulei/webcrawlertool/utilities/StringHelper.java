@@ -12,9 +12,13 @@ public class StringHelper {
         String id = null;
         if(null != url) {
             int index = url.lastIndexOf("/");
-            String sub = url.substring(index + 1);
-            index = sub.indexOf(".");
-            return sub.substring(0, index);
+            if(index != -1) {
+                String sub = url.substring(index + 1);
+                index = sub.indexOf(".");
+                if(index != -1) {
+                    return sub.substring(0, index);
+                }
+            }
         }
         return id;
     }

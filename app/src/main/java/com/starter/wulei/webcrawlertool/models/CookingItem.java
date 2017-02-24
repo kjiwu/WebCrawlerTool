@@ -10,4 +10,5 @@ public class CookingItem {
     public String name;
     public String image_name;
     public String image;
+    public int type;
 }

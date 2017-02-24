@@ -1,14 +1,20 @@
-package com.starter.wulei.webcrawlertool.utilities;
+package com.starter.wulei.webcrawlertool.resolvers;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import com.starter.wulei.webcrawlertool.databse.CookBookDBHelper;
+import com.starter.wulei.webcrawlertool.databse.CookStepsDBHelper;
+import com.starter.wulei.webcrawlertool.databse.CookingMaterialDBHelper;
+import com.starter.wulei.webcrawlertool.databse.MaterialInfoDBHelper;
 import com.starter.wulei.webcrawlertool.models.CookBook;
 import com.starter.wulei.webcrawlertool.models.CookingMaterial;
 import com.starter.wulei.webcrawlertool.models.CookingStep;
 import com.starter.wulei.webcrawlertool.models.MaterialInfo;
+import com.starter.wulei.webcrawlertool.utilities.ImageDownloader;
+import com.starter.wulei.webcrawlertool.utilities.StringHelper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -76,7 +82,7 @@ public class CookingBookResolver {
                         html += readLine;
                     }
                     in.close();
-                    resolve(html);
+                    resolve(StringHelper.getCookingId(url), html);
                 }
                 catch(MalformedURLException me) {
                 }
@@ -86,9 +92,12 @@ public class CookingBookResolver {
         }).start();
     }
 
-    private void resolve(String source) {
+    private void resolve(String bookId, String source) {
         Document htmlDoc = Jsoup.parse(source);
+        ImageDownloader imageDownloader = new ImageDownloader(mContext);
         CookBook book = new CookBook();
+        book.setId(bookId);
+
         //解析菜谱的标题
         Elements titles = htmlDoc.select("div.cp-show-main-tt");
         if(titles.size() > 0) {
@@ -99,7 +108,9 @@ public class CookingBookResolver {
         Elements big_images = htmlDoc.select("img.cp-show-pic");
         if(big_images.size() > 0) {
             book.setPic_path(big_images.get(0).attr("src"));
+            imageDownloader.download(bookId, book.getPic_path());
         }
+
 
         //解析菜谱的简介
         Elements intros = htmlDoc.select("div.cp-show-intro");
@@ -112,10 +123,10 @@ public class CookingBookResolver {
         book.setMaterial(material);
 
         //解析烹饪步骤
-        book.setSteps(getCookingStep(htmlDoc));
+        book.setSteps(getCookingStep(bookId, htmlDoc));
 
         //解析烹饪成品图
-        book.setCompletedPics(getCompletedImages(htmlDoc));
+        book.setCompletedPics(getCompletedImages(bookId, htmlDoc));
 
         //解析小窍门
         Elements tips = htmlDoc.select("div.cp-show-main-trick p");
@@ -203,8 +214,9 @@ public class CookingBookResolver {
     }
 
     //解析烹饪步骤
-    private List<CookingStep> getCookingStep(Document htmlDoc) {
+    private List<CookingStep> getCookingStep(String bookId, Document htmlDoc) {
         ArrayList<CookingStep> steps = null;
+        ImageDownloader imageDownloader = new ImageDownloader(mContext);
 
         Elements lis = htmlDoc.select("ol.wz_list li");
         if(lis.size() > 0) {
@@ -227,6 +239,7 @@ public class CookingBookResolver {
                 step.setOrder(Integer.parseInt(s.child(0).ownText()));
                 step.setName(s.child(1).ownText());
                 step.setImg_path(s.child(2).attr("src"));
+                imageDownloader.download(bookId, step.getImg_path());
                 steps.add(step);
             }
         }
@@ -235,13 +248,16 @@ public class CookingBookResolver {
     }
 
     //解析烹饪成品图
-    private List<String> getCompletedImages(Document htmlDoc) {
+    private List<String> getCompletedImages(String bookId, Document htmlDoc) {
         ArrayList<String> images = null;
+        ImageDownloader imageDownloader = new ImageDownloader(mContext);
         Elements e_images = htmlDoc.select("div.wz_pic img");
         if(e_images.size() > 0) {
             images = new ArrayList<>();
             for (Element e : e_images) {
-                images.add(e.attr("src"));
+                String image = e.attr("src");
+                imageDownloader.download(bookId, image);
+                images.add(image);
             }
         }
         return images;

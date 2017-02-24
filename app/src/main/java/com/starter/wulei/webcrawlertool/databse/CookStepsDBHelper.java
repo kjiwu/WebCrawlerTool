@@ -1,10 +1,11 @@
-package com.starter.wulei.webcrawlertool.utilities;
+package com.starter.wulei.webcrawlertool.databse;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.starter.wulei.webcrawlertool.models.CookingStep;
+import com.starter.wulei.webcrawlertool.utilities.StringHelper;
 
 import java.util.List;
 
@@ -14,8 +15,7 @@ import java.util.List;
 
 public class CookStepsDBHelper extends DBHelper {
 
-    private final static int VERSION = 1;
-    private final static String TABLE_NAME = "TS_COOKINGSTEPS";
+    private final static String TABLE_NAME = "ST_COOKINGSTEPS";
 
     private final static String COLUMN_STEP_ORDER = "step_order";
     private final static String COLUMN_STEP_NAME = "step_name";
@@ -23,32 +23,18 @@ public class CookStepsDBHelper extends DBHelper {
     private final static String COLUMN_STEP_IMG_PATH = "step_img_path";
     private final static String COLUMN_BOOK_ID = "book_id";
 
-    private final static String CREATE_STEPS_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "[TS_COOKINGSTEPS] (" +
-            "[step_order] INT," +
-            "[step_name] VARCHAR," +
-            "[step_img_name] VARCHAR," +
-            "[step_img_path] VARCHAR," +
-            "[book_id] VARCHAR" +
-            ")";
 
     public CookStepsDBHelper(Context context) {
-        super(context, VERSION);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_STEPS_TABLE);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onUpgrade(db, oldVersion, newVersion);
+        super(context);
     }
 
     public void insertSteps(String bookId, List<CookingStep> steps) {
         SQLiteDatabase db = null;
         try {
+            if(null == bookId || null == steps || steps.size() == 0) {
+                return;
+            }
+
             db = getWritableDatabase();
             db.beginTransaction();
             for (CookingStep step : steps) {
