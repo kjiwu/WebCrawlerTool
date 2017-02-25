@@ -2,13 +2,11 @@ package com.starter.wulei.webcrawlertool.resolvers;
 
 import android.content.Context;
 import android.util.Log;
-import android.webkit.JavascriptInterface;
 
 import com.starter.wulei.webcrawlertool.databse.CookingsDBHelper;
 import com.starter.wulei.webcrawlertool.models.CookingItem;
 import com.starter.wulei.webcrawlertool.models.IHTMLResolver;
 import com.starter.wulei.webcrawlertool.models.IJavaScriptInterface;
-import com.starter.wulei.webcrawlertool.utilities.ImageDownloader;
 import com.starter.wulei.webcrawlertool.utilities.StringHelper;
 
 import org.jsoup.Jsoup;
@@ -16,16 +14,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -33,6 +27,8 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class HTMLResolver implements IHTMLResolver {
+    public final static String ST_RESOLVER_TAG = "X-MAN";
+
     private String mHtml;
     private Document htmlDoc;
     private CookingsDBHelper mDBHelper;
@@ -134,7 +130,7 @@ public class HTMLResolver implements IHTMLResolver {
         }
         item.image = element.child(0).attr("src");
         item.image_name = StringHelper.getImageName(item.image);
-        Log.d("AA", "name: " + item.name + " url:" + item.url + " image:" + item.image);
+        Log.d(ST_RESOLVER_TAG, "cookingId: " + item.cookingId +"name: " + item.name + " url:" + item.url + " image:" + item.image);
         mDBHelper.insertCooking(item);
         return item;
     }

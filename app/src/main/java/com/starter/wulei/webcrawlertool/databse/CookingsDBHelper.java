@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.starter.wulei.webcrawlertool.models.CookingItem;
 import com.starter.wulei.webcrawlertool.models.CookingMaterial;
@@ -71,7 +70,7 @@ public class CookingsDBHelper extends DBHelper {
             values.put(COLUMN_COOKING_MATERIALS, material.materials);
             db.update(COOKINGS_TABLE_NAME,
                     values,
-                    COLUMN_COOKING_ID,
+                    COLUMN_COOKING_ID + "=?",
                     new String[] { cooking_id });
             db.setTransactionSuccessful();
         }

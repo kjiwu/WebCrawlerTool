@@ -1,16 +1,10 @@
 package com.starter.wulei.webcrawlertool.resolvers;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.util.Log;
 
 import com.starter.wulei.webcrawlertool.databse.CookingsDBHelper;
-import com.starter.wulei.webcrawlertool.models.CookBook;
 import com.starter.wulei.webcrawlertool.models.CookingMaterial;
-import com.starter.wulei.webcrawlertool.models.CookingStep;
-import com.starter.wulei.webcrawlertool.models.MaterialInfo;
-import com.starter.wulei.webcrawlertool.utilities.ImageDownloader;
 import com.starter.wulei.webcrawlertool.utilities.StringHelper;
 
 import org.jsoup.Jsoup;
@@ -20,16 +14,17 @@ import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
+import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by wulei on 2017/2/23.
@@ -37,60 +32,77 @@ import io.reactivex.ObservableEmitter;
 
 public class CookingBookResolver {
 
-    public interface OnCookingBookResolver {
-        void cookingBookCompleted();
+    public interface OnCookingBookCompletedListener {
+        void cookingBookCompleted(int index);
     }
 
     private Context mContext;
-    private OnCookingBookResolver mResolver;
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if(null != mResolver) {
-                mResolver.cookingBookCompleted();
-            }
-        }
-    };
 
     public CookingBookResolver(Context context) {
         mContext = context;
     }
 
-    public void resolveHtml(final String url) {
-        new Thread(new Runnable() {
+    public void resolveHtml(final int index, final String url, final OnCookingBookCompletedListener listener) {
+        Observable.create(new ObservableOnSubscribe<CookingMaterial>() {
             @Override
-            public void run() {
-                try{
-                    URL newUrl = new URL(url);
-                    URLConnection connect = newUrl.openConnection();
-                    DataInputStream dis = new DataInputStream(connect.getInputStream());
-                    BufferedReader in = new BufferedReader(new InputStreamReader(dis,"UTF-8"));
-                    String html = "";
-                    String readLine = null;
-                    while((readLine = in.readLine()) != null) {
-                        html += readLine;
-                    }
-                    in.close();
-                    resolve(StringHelper.getCookingId(url), html);
+            public void subscribe(ObservableEmitter<CookingMaterial> e) throws Exception {
+                URL newUrl = new URL(url);
+                URLConnection connect = newUrl.openConnection();
+                DataInputStream dis = new DataInputStream(connect.getInputStream());
+                BufferedReader in = new BufferedReader(new InputStreamReader(dis,"UTF-8"));
+                String html = "";
+                String readLine = null;
+                while((readLine = in.readLine()) != null) {
+                    html += readLine;
                 }
-                catch(MalformedURLException me) {
+                in.close();
+                CookingMaterial material = resolve(StringHelper.getCookingId(url), html);
+                if(null != material) {
+                    e.onNext(material);
                 }
-                catch(IOException ioe) {
-                }
+                e.onComplete();
             }
-        }).start();
+        }).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<CookingMaterial>() {
+                    CookingMaterial mMaterial;
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(CookingMaterial value) {
+                        mMaterial = value;
+                        if(null != mMaterial) {
+                            Log.d(HTMLResolver.ST_RESOLVER_TAG, "菜谱难度:" + mMaterial.difficulty + " 材料:" + mMaterial.materials);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if(null != listener) {
+                            Log.d(HTMLResolver.ST_RESOLVER_TAG, "菜谱下载完成， url: " + url);
+                            listener.cookingBookCompleted(index);
+                        }
+                    }
+                });
     }
 
-    private void resolve(String bookId, String source) {
+    private CookingMaterial resolve(String bookId, String source) {
         Document htmlDoc = Jsoup.parse(source);
 
         //解析菜谱的烹饪难度，时间和食材
         CookingMaterial material = getMaterial(htmlDoc);
         CookingsDBHelper dbHelper = new CookingsDBHelper(mContext);
         dbHelper.updateCooking(bookId, material);
-
-        Message message = Message.obtain();
-        mHandler.sendMessage(message);
+        return material;
     }
 
     //解析菜谱的烹饪难度，时间和食材
@@ -133,7 +145,9 @@ public class CookingBookResolver {
                             }
                         }
                     }
-                    builder.deleteCharAt(builder.length() - 1);
+                    if(builder.length() > 0) {
+                        builder.deleteCharAt(builder.length() - 1);
+                    }
                     material.materials = builder.toString();
                 }
             }
