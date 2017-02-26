@@ -13,6 +13,7 @@ import com.starter.wulei.webcrawlertool.databse.CookingsDBHelper;
 import com.starter.wulei.webcrawlertool.fragments.WebViewFragment;
 import com.starter.wulei.webcrawlertool.resolvers.CookingBookResolver;
 import com.starter.wulei.webcrawlertool.resolvers.HTMLResolver;
+import com.starter.wulei.webcrawlertool.utilities.ImageDownloader;
 
 import java.util.List;
 
@@ -46,10 +47,35 @@ public class MainActivity extends AppCompatActivity {
                 material.materials = "A,B,C";
                 dbHelper.updateCooking("9742", material);*/
 
-                startLoadCookBooks();
+                //startLoadCookBooks();
 
                 /*CookingBookResolver resolver = new CookingBookResolver(MainActivity.this);
                 resolver.resolveHtml(0, "http://www.chinacaipu.com/caipu/7866.html", null);*/
+
+                startLoadCookingImages();
+
+                /*
+                String url1 = "http://static.chinacaipu.com/upload/e/148790841797.jpg";
+                String url2 = "http://static.chinacaipu.com/upload/0/148791566527.jpg";
+                String url3 = "http://static.chinacaipu.com/upload/c/148388185631.png";
+                String url4 = "http://static.chinacaipu.com/upload/a/14785910454.gif";
+
+                ImageDownloader downloader_a = new ImageDownloader(MainActivity.this);
+                downloader_a.setImageQuality(25);
+                downloader_a.download(0, "a", url1, null);
+
+                ImageDownloader downloader_b = new ImageDownloader(MainActivity.this);
+                downloader_b.setImageQuality(25);
+                downloader_b.download(0, "a", url2, null);
+
+                ImageDownloader downloader_c = new ImageDownloader(MainActivity.this);
+                downloader_b.setImageQuality(25);
+                downloader_b.download(0, "a", url3, null);
+
+                ImageDownloader downloader_d = new ImageDownloader(MainActivity.this);
+                downloader_b.setImageQuality(25);
+                downloader_b.download(0, "a", url4, null);
+                */
             }
         });
     }
@@ -78,6 +104,35 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.d(HTMLResolver.ST_RESOLVER_TAG, "当前下载的菜谱编号:0");
                 resolver.resolveHtml(0, urls.get(0), listener);
+            }
+        }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread());
+        observable.subscribe();
+    }
+
+    private void startLoadCookingImages() {
+        Observable observable = Observable.create(new ObservableOnSubscribe() {
+            @Override
+            public void subscribe(final ObservableEmitter e) throws Exception {
+                CookingsDBHelper dbHelper = new CookingsDBHelper(MainActivity.this);
+                final ImageDownloader downloader = new ImageDownloader(MainActivity.this);
+                final List<String> urls = dbHelper.getCookingImageUrls(2001);
+                Log.d(HTMLResolver.ST_RESOLVER_TAG, "共有" + urls.size() + "个数据要下载");
+
+                ImageDownloader.ImageDownloadListener listener = new ImageDownloader.ImageDownloadListener() {
+                    @Override
+                    public void downloadCompleted(int index) {
+                        int newIndex = index + 1;
+                        if(newIndex < urls.size()) {
+                            Log.d(HTMLResolver.ST_RESOLVER_TAG, "当前下载的菜谱编号:" + newIndex);
+                            downloader.download(newIndex, "cp", urls.get(newIndex), this);
+                        } else {
+                            e.onComplete();
+                        }
+                    }
+                };
+
+                Log.d(HTMLResolver.ST_RESOLVER_TAG, "当前下载的菜谱编号:0");
+                downloader.download(0, "cp", urls.get(0), listener);
             }
         }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread());
         observable.subscribe();

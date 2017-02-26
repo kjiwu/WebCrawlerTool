@@ -108,4 +108,28 @@ public class CookingsDBHelper extends DBHelper {
         }
         return result;
     }
+
+    public List<String> getCookingImageUrls(int count) {
+        SQLiteDatabase db = null;
+        ArrayList<String> result = null;
+        try {
+            db = getReadableDatabase();
+            Cursor cursor = db.query(COOKINGS_TABLE_NAME,
+                    new String[] { COLUMN_COOKING_IMG },
+                    null, null, null, null, null, String.valueOf(count));
+            if(cursor.getCount() > 0) {
+                result = new ArrayList<>();
+                cursor.moveToFirst();
+                while (cursor.moveToNext()) {
+                    result.add(cursor.getString(0));
+                }
+            }
+        }
+        finally {
+            if(null != db) {
+                db.close();
+            }
+        }
+        return result;
+    }
 }
