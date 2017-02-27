@@ -47,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
                 material.materials = "A,B,C";
                 dbHelper.updateCooking("9742", material);*/
 
-                //startLoadCookBooks();
+                startLoadCookBooks();
 
                 /*CookingBookResolver resolver = new CookingBookResolver(MainActivity.this);
                 resolver.resolveHtml(0, "http://www.chinacaipu.com/caipu/7866.html", null);*/
 
-                startLoadCookingImages();
+                //startLoadCookingImages();
 
                 /*
                 String url1 = "http://static.chinacaipu.com/upload/e/148790841797.jpg";
@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
                             resolver.resolveHtml(newIndex, urls.get(newIndex), this);
                         } else {
                             e.onComplete();
+
+                            startLoadCookingImages();
                         }
                     }
                 };
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
             public void subscribe(final ObservableEmitter e) throws Exception {
                 CookingsDBHelper dbHelper = new CookingsDBHelper(MainActivity.this);
                 final ImageDownloader downloader = new ImageDownloader(MainActivity.this);
-                final List<String> urls = dbHelper.getCookingImageUrls(2001);
+                final List<String> urls = dbHelper.getCookingImageUrls(0);
                 Log.d(HTMLResolver.ST_RESOLVER_TAG, "共有" + urls.size() + "个数据要下载");
 
                 ImageDownloader.ImageDownloadListener listener = new ImageDownloader.ImageDownloadListener() {

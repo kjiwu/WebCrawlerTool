@@ -124,13 +124,13 @@ public class HTMLResolver implements IHTMLResolver {
     private CookingItem getCooking(Element element) {
         CookingItem item = new CookingItem();
         item.name = element.children().get(1).children().get(0).ownText();
-        item.cookingId = StringHelper.getCookingId(item.name);
         if (element.hasAttr("href")) {
             item.url = element.attr("href");
+            item.cookingId = StringHelper.getCookingId(item.url);
         }
         item.image = element.child(0).attr("src");
         item.image_name = StringHelper.getImageName(item.image);
-        Log.d(ST_RESOLVER_TAG, "cookingId: " + item.cookingId +"name: " + item.name + " url:" + item.url + " image:" + item.image);
+        Log.d(ST_RESOLVER_TAG, "cookingId: " + item.cookingId +" name: " + item.name + " url:" + item.url + " image:" + item.image);
         mDBHelper.insertCooking(item);
         return item;
     }

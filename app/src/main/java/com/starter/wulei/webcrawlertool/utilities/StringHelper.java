@@ -24,12 +24,14 @@ public class StringHelper {
     }
 
     public static String getImageName(String url) {
-        String id = null;
+        String imageName = null;
         if(null != url) {
             int index = url.lastIndexOf("/");
-            return url.substring(index + 1);
+            imageName = url.substring(index + 1);
+            index = imageName.lastIndexOf(".");
+            imageName = imageName.substring(0, index);
         }
-       return id;
+       return imageName;
     }
 
     public static String getTipsString(List<String> tips) {
