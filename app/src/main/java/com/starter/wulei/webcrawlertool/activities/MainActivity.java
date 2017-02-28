@@ -1,5 +1,6 @@
 package com.starter.wulei.webcrawlertool.activities;
 
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -15,6 +16,10 @@ import com.starter.wulei.webcrawlertool.resolvers.CookingBookResolver;
 import com.starter.wulei.webcrawlertool.resolvers.HTMLResolver;
 import com.starter.wulei.webcrawlertool.utilities.ImageDownloader;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -32,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeDatabase();
+
         final FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction trans = manager.beginTransaction();
         trans.replace(R.id.activity_main, new WebViewFragment());
@@ -47,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
                 material.materials = "A,B,C";
                 dbHelper.updateCooking("9742", material);*/
 
-                startLoadCookBooks();
+                //startLoadCookBooks();
 
                 /*CookingBookResolver resolver = new CookingBookResolver(MainActivity.this);
                 resolver.resolveHtml(0, "http://www.chinacaipu.com/caipu/7866.html", null);*/
 
-                //startLoadCookingImages();
+                startLoadCookingImages();
 
                 /*
                 String url1 = "http://static.chinacaipu.com/upload/e/148790841797.jpg";
@@ -61,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
                 String url4 = "http://static.chinacaipu.com/upload/a/14785910454.gif";
 
                 ImageDownloader downloader_a = new ImageDownloader(MainActivity.this);
-                downloader_a.setImageQuality(25);
                 downloader_a.download(0, "a", url1, null);
 
                 ImageDownloader downloader_b = new ImageDownloader(MainActivity.this);
@@ -117,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             public void subscribe(final ObservableEmitter e) throws Exception {
                 CookingsDBHelper dbHelper = new CookingsDBHelper(MainActivity.this);
                 final ImageDownloader downloader = new ImageDownloader(MainActivity.this);
-                final List<String> urls = dbHelper.getCookingImageUrls(0);
+                final List<String> urls = dbHelper.getCookingImageUrls(2001);
                 Log.d(HTMLResolver.ST_RESOLVER_TAG, "共有" + urls.size() + "个数据要下载");
 
                 ImageDownloader.ImageDownloadListener listener = new ImageDownloader.ImageDownloadListener() {
@@ -126,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         int newIndex = index + 1;
                         if(newIndex < urls.size()) {
                             Log.d(HTMLResolver.ST_RESOLVER_TAG, "当前下载的菜谱编号:" + newIndex);
-                            downloader.download(newIndex, "cp", urls.get(newIndex), this);
+                            downloader.download(newIndex, "thumbs", urls.get(newIndex), this);
                         } else {
                             e.onComplete();
                         }
@@ -134,9 +140,55 @@ public class MainActivity extends AppCompatActivity {
                 };
 
                 Log.d(HTMLResolver.ST_RESOLVER_TAG, "当前下载的菜谱编号:0");
-                downloader.download(0, "cp", urls.get(0), listener);
+                downloader.download(0, "thumbs", urls.get(0), listener);
             }
         }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread());
         observable.subscribe();
+    }
+
+
+
+
+    private void initializeDatabase() {
+        String path = "/data/data/" + this.getApplicationContext().getPackageName() + "/databases";
+        File dir = new File(path);
+        if(!dir.exists()) {
+            dir.mkdir();
+        }
+
+        path += "/cookings.db";
+        File file = new File(path);
+        if(file.exists()) {
+            return;
+        }
+
+        FileOutputStream out = null;
+        InputStream in = null;
+        try {
+            out = new FileOutputStream(file);
+            AssetManager manager = (AssetManager) getAssets();
+            in = manager.open("cookings.db");
+            byte[] buffer = new byte[1024];
+            while (in.read(buffer) > 0) {
+                out.write(buffer);
+            }
+            out.flush();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                if (null != out) {
+                    out.close();
+                }
+                if(null != in) {
+                    in.close();
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

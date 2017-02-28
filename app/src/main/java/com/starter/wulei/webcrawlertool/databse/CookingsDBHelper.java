@@ -116,7 +116,7 @@ public class CookingsDBHelper extends DBHelper {
             db = getReadableDatabase();
             Cursor cursor = db.query(COOKINGS_TABLE_NAME,
                     new String[] { COLUMN_COOKING_IMG },
-                    null, null, null, null, null, null);
+                    null, null, null, null, null, count > 0 ? String.valueOf(count) : null);
             if(cursor.getCount() > 0) {
                 result = new ArrayList<>();
                 cursor.moveToFirst();

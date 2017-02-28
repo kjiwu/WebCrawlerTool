@@ -24,8 +24,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ImageDownloader {
 
-    private final static int IMAGE_QUALITY = 50;
-    private final static String IMAGE_PREFIX = "st";
+    private final static int IMAGE_QUALITY = 25;
+    private final static String IMAGE_SUFFIX = ".jpg";
 
     private Context mContext;
 
@@ -96,14 +96,11 @@ public class ImageDownloader {
                             connection.connect();
                             InputStream in = connection.getInputStream();
                             BitmapFactory.Options options = new BitmapFactory.Options();
-                            options.inJustDecodeBounds = true;
-                            Bitmap empty = BitmapFactory.decodeStream(in, null, options);
-                            float scale = empty.getWidth() / 160;
                             options.inJustDecodeBounds = false;
-                            options.inSampleSize = Math.round(scale);
+                            options.inSampleSize = 3;
                             options.inPreferredConfig = Bitmap.Config.RGB_565;
                             Bitmap bitmap = BitmapFactory.decodeStream(in, null, options);
-                            String imageName = IMAGE_PREFIX + StringHelper.getImageName(imageUrl);
+                            String imageName = StringHelper.getImageName(imageUrl) + IMAGE_SUFFIX;
                             String path = getFileDirPath(subDir, imageName);
                             File file = new File(path);
                             FileOutputStream out = new FileOutputStream(file);
