@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 public class DBHelper extends SQLiteOpenHelper {
-    protected final static String DB_NAME = "cookings.db";
+    protected final static String DB_NAME = "cookbooks.db";
     private final static int DB_VERSION = 1;
 
     public final static String COLUMN_COOKING_ID = "cooking_id";
@@ -20,6 +20,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static String COLUMN_COOKING_IMG = "cooking_image";
     public final static String COLUMN_COOKING_DIFF = "cooking_difficulty";
     public final static String COLUMN_COOKING_MATERIALS = "cooking_materials";
+    public final static String COLUMN_COOKING_INTRO = "cooking_intro";
 
 
     //菜谱列表表
@@ -30,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "    [cooking_url] VARCHAR(100), \n" +
             "    [cooking_img_name] VARCHAR(100), \n" +
             "    [cooking_image] VARCHAR(200), \n" +
+            "    [cooking_intro] VARCHAR(500), \n" +
             "    [cooking_difficulty] NVARCHAR(50), \n" +
             "    [cooking_materials] VARCHAR(200));";
 

@@ -100,6 +100,10 @@ public class CookingBookResolver {
 
         //解析菜谱的烹饪难度，时间和食材
         CookingMaterial material = getMaterial(htmlDoc);
+        Elements intros = htmlDoc.select("div.cp-show-intro");
+        if(intros.size() > 0) {
+            material.intro = intros.get(0).ownText();
+        }
         CookingsDBHelper dbHelper = new CookingsDBHelper(mContext);
         dbHelper.updateCooking(bookId, material);
         return material;

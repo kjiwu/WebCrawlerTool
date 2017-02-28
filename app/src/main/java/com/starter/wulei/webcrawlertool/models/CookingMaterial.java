@@ -10,4 +10,5 @@ import java.util.UUID;
 public class CookingMaterial {
     public String difficulty;
     public String materials;
+    public String intro;
 }

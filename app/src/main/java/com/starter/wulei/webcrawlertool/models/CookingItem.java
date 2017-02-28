@@ -15,4 +15,5 @@ public class CookingItem {
     public int type;
     public String difficulity;
     public String materials;
+    public String intro;
 }

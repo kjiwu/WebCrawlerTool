@@ -54,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
                 material.materials = "A,B,C";
                 dbHelper.updateCooking("9742", material);*/
 
-                //startLoadCookBooks();
+                startLoadCookBooks();
 
                 /*CookingBookResolver resolver = new CookingBookResolver(MainActivity.this);
                 resolver.resolveHtml(0, "http://www.chinacaipu.com/caipu/7866.html", null);*/
 
-                startLoadCookingImages();
+                //startLoadCookingImages();
 
                 /*
                 String url1 = "http://static.chinacaipu.com/upload/e/148790841797.jpg";

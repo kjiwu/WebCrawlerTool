@@ -29,7 +29,7 @@ public class StringHelper {
             int index = url.lastIndexOf("/");
             imageName = url.substring(index + 1);
             index = imageName.lastIndexOf(".");
-            imageName = imageName.substring(0, index);
+            imageName = imageName.substring(0, index) + ".jpg";
         }
        return imageName;
     }

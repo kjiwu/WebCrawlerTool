@@ -4,9 +4,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.starter.wulei.webcrawlertool.models.CookingItem;
 import com.starter.wulei.webcrawlertool.models.CookingMaterial;
+import com.starter.wulei.webcrawlertool.resolvers.HTMLResolver;
 import com.starter.wulei.webcrawlertool.utilities.StringHelper;
 
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ public class CookingsDBHelper extends DBHelper {
             values.put(COLUMN_COOKING_TYPE, cooking.type);
             values.put(COLUMN_COOKING_DIFF, cooking.difficulity);
             values.put(COLUMN_COOKING_MATERIALS, cooking.materials);
+            values.put(COLUMN_COOKING_INTRO, cooking.intro);
             db.insert(COOKINGS_TABLE_NAME, "name,url,image", values);
             db.setTransactionSuccessful();
         }
@@ -68,11 +71,13 @@ public class CookingsDBHelper extends DBHelper {
             ContentValues values = new ContentValues();
             values.put(COLUMN_COOKING_DIFF, material.difficulty);
             values.put(COLUMN_COOKING_MATERIALS, material.materials);
+            values.put(COLUMN_COOKING_INTRO, material.intro);
             db.update(COOKINGS_TABLE_NAME,
                     values,
                     COLUMN_COOKING_ID + "=?",
                     new String[] { cooking_id });
             db.setTransactionSuccessful();
+            Log.d(HTMLResolver.ST_RESOLVER_TAG, "菜单数据更新:(" + material.difficulty + ", " + material.materials + ", " + material.intro + ")");
         }
         catch (Exception e) {
             e.printStackTrace();
