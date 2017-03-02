@@ -14,6 +14,7 @@ import com.starter.wulei.webcrawlertool.databse.CookingsDBHelper;
 import com.starter.wulei.webcrawlertool.fragments.WebViewFragment;
 import com.starter.wulei.webcrawlertool.resolvers.CookingBookResolver;
 import com.starter.wulei.webcrawlertool.resolvers.HTMLResolver;
+import com.starter.wulei.webcrawlertool.resolvers.MaterialsResolver;
 import com.starter.wulei.webcrawlertool.utilities.ImageDownloader;
 
 import java.io.File;
@@ -30,7 +31,10 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button mButtonTest;
+    private Button mButtonSyncDetail;
+
+    private Button mButtonSyncMaterials;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,44 +48,20 @@ public class MainActivity extends AppCompatActivity {
         trans.replace(R.id.activity_main, new WebViewFragment());
         trans.commit();
 
-        mButtonTest = (Button) findViewById(R.id.button_test);
-        mButtonTest.setOnClickListener(new View.OnClickListener() {
+        mButtonSyncDetail = (Button) findViewById(R.id.button_sync_detail);
+        mButtonSyncDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /* CookingsDBHelper dbHelper = new CookingsDBHelper(MainActivity.this);
-                CookingMaterial material = new CookingMaterial();
-                material.difficulty = "容易";
-                material.materials = "A,B,C";
-                dbHelper.updateCooking("9742", material);*/
-
                 startLoadCookBooks();
+            }
+        });
 
-                /*CookingBookResolver resolver = new CookingBookResolver(MainActivity.this);
-                resolver.resolveHtml(0, "http://www.chinacaipu.com/caipu/7866.html", null);*/
-
-                //startLoadCookingImages();
-
-                /*
-                String url1 = "http://static.chinacaipu.com/upload/e/148790841797.jpg";
-                String url2 = "http://static.chinacaipu.com/upload/0/148791566527.jpg";
-                String url3 = "http://static.chinacaipu.com/upload/c/148388185631.png";
-                String url4 = "http://static.chinacaipu.com/upload/a/14785910454.gif";
-
-                ImageDownloader downloader_a = new ImageDownloader(MainActivity.this);
-                downloader_a.download(0, "a", url1, null);
-
-                ImageDownloader downloader_b = new ImageDownloader(MainActivity.this);
-                downloader_b.setImageQuality(25);
-                downloader_b.download(0, "a", url2, null);
-
-                ImageDownloader downloader_c = new ImageDownloader(MainActivity.this);
-                downloader_b.setImageQuality(25);
-                downloader_b.download(0, "a", url3, null);
-
-                ImageDownloader downloader_d = new ImageDownloader(MainActivity.this);
-                downloader_b.setImageQuality(25);
-                downloader_b.download(0, "a", url4, null);
-                */
+        mButtonSyncMaterials = (Button) findViewById(R.id.button_sync_materials);
+        mButtonSyncMaterials.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MaterialsResolver resolver = new MaterialsResolver(MainActivity.this);
+                resolver.resolveHtml();
             }
         });
     }
@@ -145,9 +125,6 @@ public class MainActivity extends AppCompatActivity {
         }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread());
         observable.subscribe();
     }
-
-
-
 
     private void initializeDatabase() {
         String path = "/data/data/" + this.getApplicationContext().getPackageName() + "/databases";

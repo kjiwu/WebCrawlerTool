@@ -25,7 +25,13 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TEST"
-        android:id="@+id/button_test"/>
+        android:text="同步菜谱详情"
+        android:id="@+id/button_sync_detail"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="同步食材信息"
+        android:id="@+id/button_sync_materials"/>
 
 </LinearLayout>

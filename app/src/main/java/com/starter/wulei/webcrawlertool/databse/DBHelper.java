@@ -36,7 +36,11 @@ public class DBHelper extends SQLiteOpenHelper {
             "    [cooking_materials] VARCHAR(200));";
 
     public DBHelper(Context context) {
-        super(context, DB_NAME, null, DB_VERSION);
+        this(context, DB_VERSION);
+    }
+
+    public DBHelper(Context context, int version) {
+            super(context, DB_NAME, null, version);
     }
 
     @Override
